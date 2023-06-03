@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# This script adds a new path to the PATH variable in the bash profile files.
+
+NEW_PATH=$1
+
+# Check if the new path is already in $PATH
+if echo "$PATH" | grep -q "$NEW_PATH" ; then
+    echo "Warning: Path already exists in \$PATH"
+    return 0
+fi
+
+# Check if the new path is in any bash profile files
+for FILE in ~/.zprofile ~/.profile ~/.bash_profile
+do
+    # Create the file if it doesn't exist
+    if [ ! -f "$FILE" ] ; then
+        touch "$FILE"
+    fi
+
+    if grep -q "^export PATH=.*$NEW_PATH" "$FILE" ; then
+        continue
+    else
+        # If the new path is not in a specific profile file, add it to that file
+        echo "export PATH=\"$NEW_PATH:\$PATH\"" >> "$FILE"
+        echo "Added $NEW_PATH to $FILE"
+    fi
+done
