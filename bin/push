@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Check if two arguments are provided
+if [ "$#" -ne 2 ]; then
+  echo "Usage: push <source> <destination>"
+  exit 1
+fi
+
+parse_argument() {
+  local arg="$1"
+  if [[ "$arg" =~ ^# ]]; then
+    # If the argument starts with '#', execute the command and extract the path
+    local cmd="${arg#?}"
+    local cmd_path="${cmd#*:}"
+    cmd="${cmd%%:*}"
+    local result="$(eval "$cmd")"
+    # Check if cmd_path is empty and set it to the default value if needed
+    if [ "$cmd_path" == "$arg" ]; then
+      cmd_path="~/"
+    fi
+    echo -e "$result\n$cmd_path"
+  else
+    # If the argument does not start with '#', return it as is
+    echo -e "$arg"
+  fi
+}
+
+src_arg="$1"
+dst_arg="$2"
+
+# Parse the arguments
+IFS=$'\n'
+src=($(parse_argument "$src_arg"))
+dst=($(parse_argument "$dst_arg"))
+
+# Extract user, IP address, PEM file path, and file path
+src_user_ip="${src[0]}"
+dst_user_ip="${dst[0]}"
+src_pem="${src[1]}"
+dst_pem="${dst[1]}"
+src_path="${src[2]}"
+dst_path="${dst[2]}"
+
+# Perform rsync based on different cases
+if [[ "$src_arg" =~ ^# ]] && [[ "$dst_arg" =~ ^# ]]; then
+  rsync -avz -e "ssh -i $src_pem" "${src_user_ip}:${src_path}" -e "ssh -i $dst_pem" "${dst_user_ip}:${dst_path}"
+elif [[ "$src_arg" =~ ^# ]]; then
+  rsync -avz -e "ssh -i $src_pem" "${src_user_ip}:${src_path}" "$dst"
+elif [[ "$dst_arg" =~ ^# ]]; then
+  rsync -avz -e "ssh -i $dst_pem" "$src" "${dst_user_ip}:${dst_path}"
+else
+  rsync -avz "$src" "$dst"
+fi
