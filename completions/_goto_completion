@@ -1,0 +1,20 @@
+_goto_completion() {
+  local -a commands
+  local -a options
+  local cur prev opts
+
+  cur="${LBUFFER}"
+  prev="${LBUFFER% *}"
+  commands=( ${(f)"$(ls /usr/local/bin)"} )
+  options=( '-c' '-t' )
+
+  if [[ "$cur" == -* ]]; then
+    _describe -t options "option" options
+  else
+    _describe -t commands "command" commands
+  fi
+}
+
+autoload -Uz compinit
+compinit
+compdef _goto_completion goto

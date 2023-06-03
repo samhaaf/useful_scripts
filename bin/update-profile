@@ -1,0 +1,65 @@
+#!/bin/bash
+
+MODE="export"
+SED_ARGS="-i"
+
+# Check if we're on macOS
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS uses BSD sed, which requires an extension with -i
+  SED_ARGS="-i ''"
+fi
+
+for arg in "$@"
+do
+  case $arg in
+    --alias)
+      MODE="alias"
+      shift # Remove --alias from processing
+      ;;
+    --source)
+      MODE="source"
+      shift # Remove --source from processing
+      ;;
+  esac
+done
+
+VAR=$1
+VALUE=$2
+
+# Check if the variable is PATH
+if [ "$VAR" == "PATH" ] ; then
+    echo "Error: to update the path, please use add-to-path"
+    exit 1
+fi
+
+for FILE in ~/.zprofile ~/.profile ~/.bash_profile ~/.zshrc
+do
+    # Create the file if it doesn't exist
+    if [ ! -f "$FILE" ] ; then
+        touch "$FILE"
+    fi
+
+    # If the variable, alias, or source file is already in the file, delete it
+    if [ "$MODE" = "alias" ] ; then
+        if grep -q "alias $VAR=" "$FILE" ; then
+            sed $SED_ARGS "\#alias $VAR=#d" "$FILE"
+        fi
+    elif [ "$MODE" = "export" ] ; then
+        if grep -q "export $VAR=" "$FILE" ; then
+            sed $SED_ARGS "\#export $VAR=#d" "$FILE"
+        fi
+    elif [ "$MODE" = "source" ] ; then
+        if grep -q "source $VAR" "$FILE" ; then
+            sed $SED_ARGS "\#source $VAR#d" "$FILE"
+        fi
+    fi
+
+    # Add the variable, alias, or source to the file
+    if [ "$MODE" = "alias" ] ; then
+        echo "alias $VAR='$VALUE'" >> "$FILE"
+    elif [ "$MODE" = "export" ] ; then
+        echo "export $VAR=$VALUE" >> "$FILE"
+    elif [ "$MODE" = "source" ] ; then
+        echo "source $VAR" >> "$FILE"
+    fi
+done

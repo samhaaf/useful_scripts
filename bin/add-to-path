@@ -6,12 +6,11 @@ NEW_PATH=$1
 
 # Check if the new path is already in $PATH
 if echo "$PATH" | grep -q "$NEW_PATH" ; then
-    echo "Warning: Path already exists in \$PATH"
-    return 0
+    exit 0
 fi
 
 # Check if the new path is in any bash profile files
-for FILE in ~/.zprofile ~/.profile ~/.bash_profile
+for FILE in ~/.zprofile ~/.profile ~/.bash_profile ~/.zshrc
 do
     # Create the file if it doesn't exist
     if [ ! -f "$FILE" ] ; then
