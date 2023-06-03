@@ -1,0 +1,29 @@
+#!/bin/bash
+
+echo "Let's add your server."
+
+read -p "Server alias: " server_alias
+
+# Check if server file already exists
+script_dir=$(dirname "$0")
+server_dir="$script_dir/../servers"
+server_file="$server_dir/$server_alias"
+if [ -f "$server_file" ]; then
+    read -p "The server file '$server_alias' already exists. Do you want to update it? (y/n): " confirm_update
+    if [ "$confirm_update" != "y" ]; then
+        echo "Aborted. No changes were made."
+        exit 0
+    fi
+fi
+
+read -p "User: " user
+read -p "IP address: " ip_address
+read -p "PEM file: " pem_file
+
+# Create or update the server file
+mkdir -p "$server_dir"
+echo "#!/bin/bash" > "$server_file"
+echo "echo \"$user:$ip_address\"" >> "$server_file"
+echo "echo \"$pem_file\"" >> "$server_file"
+
+echo "Server details have been added/updated successfully in '$server_file'."

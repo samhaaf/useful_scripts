@@ -3,9 +3,13 @@ _goto_completion() {
   local -a options
   local cur prev opts
 
+
+  server_dir=$(dirname "$USEFUL_SCRIPT_BIN")
+  server_dir="$server_dir/servers"
+
   cur="${LBUFFER}"
   prev="${LBUFFER% *}"
-  commands=( ${(f)"$(ls /usr/local/bin)"} )
+  commands=( ${(f)"$(ls $server_dir)"} )
   options=( '-c' '-t' )
 
   if [[ "$cur" == -* ]]; then
@@ -18,3 +22,4 @@ _goto_completion() {
 autoload -Uz compinit
 compinit
 compdef _goto_completion goto
+compdef _goto_completion push
