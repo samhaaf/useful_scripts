@@ -1,0 +1,5 @@
+#!/bin/bash
+
+p $USEFUL_SCRIPT_BIN/$1
+
+chmod +x $USEFUL_SCRIPT_BIN/$1

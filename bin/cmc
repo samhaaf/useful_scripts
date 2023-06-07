@@ -1,0 +1,3 @@
+#!/bin/bash
+
+c cat $USEFUL_SCRIPT_BIN/$1 
