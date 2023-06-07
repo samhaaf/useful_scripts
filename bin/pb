@@ -3,5 +3,14 @@
 # Join command arguments with spaces
 command_args="$*"
 
-# Run the command and pipe the output to pbcopy
-$command_args | pbcopy
+# Check if pbcopy is available
+if command -v pbcopy >/dev/null 2>&1; then
+    # Run the command and pipe the output to pbcopy
+    $command_args | pbcopy
+elif command -v xclip >/dev/null 2>&1; then
+    # Run the command and pipe the output to xclip
+    $command_args | xclip -selection clipboard
+else
+    echo "Error: No clipboard utility (pbcopy or xclip) found." >&2
+    exit 1
+fi
