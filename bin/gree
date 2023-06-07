@@ -1,0 +1,87 @@
+#!/bin/bash
+
+shopt -s nullglob  # This line is added
+
+MAX_DEPTH=4
+
+# Function to check if a string matches a pattern using regex
+# Function to check if a string matches a pattern using regex
+# Function to check if a string matches a pattern using regex
+
+# Function to check if a string matches a pattern using regex
+IS_MATCH() {
+    local string="$1"
+    local pattern="$2"
+    if [[ "$string" =~ $pattern ]]; then
+        return 0
+    fi
+    return 1
+}
+
+# Recursive function to build aggregate gitignore array and print the tree
+traverse() {
+    local current_path="$1"
+    local padding="$2"
+    local depth="$3"
+    local ignored_paths="$4"
+    local last_item=$(ls -d "$current_path"/* 2>/dev/null | tail -n 1)
+
+    # If directory is empty or beyond max depth, return
+    if [ -z "$(ls -A "$current_path")" ] || ([ "$depth" -gt "$MAX_DEPTH" ] && [ "$MAX_DEPTH" -ne 0 ]); then
+        echo "${padding}└── ..."
+        return
+    fi
+
+    local current_ignored_paths="$ignored_paths"
+    # Check for .gitignore
+    if [ -f "$current_path/.gitignore" ]; then
+        while IFS= read -r line; do
+            if [[ ! "$line" =~ ^[[:space:]]*# ]]; then
+                current_ignored_paths="$current_ignored_paths|$current_path/$line"
+            fi
+        done < "$current_path/.gitignore"
+    fi
+
+    for file in "$current_path"/*; do
+        # Check against ignore paths
+        local is_ignored=false
+        for pattern in $(echo $current_ignored_paths | tr '|' '\n'); do
+            if IS_MATCH "$file" "$pattern"; then
+                is_ignored=true
+                break
+            fi
+        done
+
+        # If file is not ignored, print and recurse if directory
+        if ! $is_ignored; then
+            if [ -d "$file" ]; then
+                if [[ "$file" == "$last_item" ]]; then
+                    echo "${padding}└── $(basename "$file")/"
+                    traverse "$file" "${padding}    " $((depth + 1)) "$current_ignored_paths"  # use spaces for padding
+                else
+                    echo "${padding}├── $(basename "$file")/"
+                    traverse "$file" "${padding}│   " $((depth + 1)) "$current_ignored_paths"
+                fi
+            else
+                if [[ "$file" == "$last_item" ]]; then
+                    echo "${padding}└── $(basename "$file")"
+                else
+                    echo "${padding}├── $(basename "$file")"
+                fi
+            fi
+        fi
+    done
+}
+
+# Command line argument parsing
+for arg in "$@"; do
+    case $arg in
+        --max-depth=*)
+        MAX_DEPTH="${arg#*=}"
+        shift
+        ;;
+    esac
+done
+
+echo "."
+traverse "." "" 1 ""

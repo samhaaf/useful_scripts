@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Join command arguments with spaces
+command_args="$*"
+
+# Run the command and pipe the output to pbcopy
+$command_args | pbcopy
