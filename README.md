@@ -1,6 +1,8 @@
 # useful_scripts
 These are the tools that I use to be more efficient behind the wheel.
 
+These scripts should run equivalently on MacOS and all linux distros.
+
 <br>
 
 ## Setup
@@ -19,10 +21,6 @@ make sync
 <br>
 
 ## Commands
-
-These are the bash scripts that become available on the system. Most have been written to run on MacOS and all linux distros.
-
----
 
 ### add-to-gitignore (Alias: ignore)
 
