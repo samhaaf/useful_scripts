@@ -149,3 +149,9 @@ push /path/to/foo /path/to/bar                 # local to local
 push /path/to/foo #my-instance:/path/to/bar    # local to remote
 push #my-instance:/path/to/foo /path/to/bar    # remote to local
 ```
+
+### source-profile (Alias: sp)
+
+Sources the bash profile into the current context.
+
+(Note: This one is actually itself an alias)
