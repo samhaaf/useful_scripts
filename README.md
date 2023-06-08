@@ -12,7 +12,9 @@ After cloning the repositories, simply run:
 make setup
 ```
 
-To get the most recent version of the scripts on this machine, run:
+And all of these scripts will be in your $PATH. To use in the current shell, source your profile script. 
+
+To get the most recent updates, run:
 
 ```
 make sync
