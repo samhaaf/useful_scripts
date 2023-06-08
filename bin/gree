@@ -5,10 +5,6 @@ shopt -s nullglob  # This line is added
 MAX_DEPTH=4
 
 # Function to check if a string matches a pattern using regex
-# Function to check if a string matches a pattern using regex
-# Function to check if a string matches a pattern using regex
-
-# Function to check if a string matches a pattern using regex
 IS_MATCH() {
     local string="$1"
     local pattern="$2"
@@ -17,6 +13,14 @@ IS_MATCH() {
     fi
     return 1
 }
+
+# List of directories and files to ignore at every level
+ignore_everywhere=(
+    ".git"
+    ".gitignore"
+    "__pycache__"
+    "node_modules"
+)
 
 # Recursive function to build aggregate gitignore array and print the tree
 traverse() {
@@ -42,10 +46,15 @@ traverse() {
         done < "$current_path/.gitignore"
     fi
 
+    # Loop to add directories and files to ignore at every level
+    for rule in "${ignore_everywhere[@]}"; do
+        current_ignored_paths+="|$current_path/$rule"
+    done
+
     for file in "$current_path"/*; do
         # Check against ignore paths
         local is_ignored=false
-        for pattern in $(echo $current_ignored_paths | tr '|' '\n'); do
+        for pattern in $(echo "$current_ignored_paths" | tr '|' '\n'); do
             if IS_MATCH "$file" "$pattern"; then
                 is_ignored=true
                 break
@@ -57,10 +66,14 @@ traverse() {
             if [ -d "$file" ]; then
                 if [[ "$file" == "$last_item" ]]; then
                     echo "${padding}└── $(basename "$file")/"
-                    traverse "$file" "${padding}    " $((depth + 1)) "$current_ignored_paths"  # use spaces for padding
+                    if [ -n "$(ls -A "$file")" ]; then
+                        traverse "$file" "${padding}    " $((depth + 1)) "$current_ignored_paths"  # use spaces for padding
+                    fi
                 else
                     echo "${padding}├── $(basename "$file")/"
-                    traverse "$file" "${padding}│   " $((depth + 1)) "$current_ignored_paths"
+                    if [ -n "$(ls -A "$file")" ]; then
+                        traverse "$file" "${padding}│   " $((depth + 1)) "$current_ignored_paths"  # use spaces for padding
+                    fi
                 fi
             else
                 if [[ "$file" == "$last_item" ]]; then
