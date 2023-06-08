@@ -47,8 +47,8 @@ add-to-profile PYTHON_PATH /path/to/python
 
 Additional behaviors:
 ```
-add-to-profile --alias <alias_name> "<alias_content>" : Adds an alias to your bash profiles.
-add-to-profile --source <thing_to_source> : Adds a source to your bash profiles.
+add-to-profile --alias <alias_name> "<alias_content>"    # Adds an alias to your bash profiles.
+add-to-profile --source <thing_to_source>                # Adds a source to your bash profiles.
 ```
 
 ---
@@ -84,8 +84,8 @@ Opens an ssh connection to a server object defined with `define-server`. Support
 
 Additional behaviors:
 ```
-goto <server> -t / --tunnel <that_port>:<this_port> : opens a tunnel from that_port on that machine to this_port on this machine (incomplete)
-goto <server> -c / --code "<code>" : executes arbitrary code on the target
+goto <server> -t / --tunnel <that_port>:<this_port>    # opens a tunnel from that_port on that machine to this_port on this machine (incomplete)
+goto <server> -c / --code "<code>"                     # executes arbitrary code on the target
 ```
 
 ---
