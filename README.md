@@ -1,7 +1,7 @@
 # useful_scripts
 These are the tools that I use to be more efficient in the black box.
 
-These scripts should run equivalently on MacOS and all linux distros.
+These scripts should run equivalently on MacOS and all major linux distros.
 
 <br>
 
