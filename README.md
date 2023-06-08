@@ -125,11 +125,13 @@ p my_file.txt
 
 ### paste-my-command (Alias: pmc)
 
-Pastes the contents of the clipboard to a new or existing command. Existing commands will the user for confirmation.
+Pastes the contents of the clipboard to a new or existing command. Existing commands will ask the user for confirmation.
 
 Example:
 ``` 
-p my-updated-command
+pmc new-command       # does not ask for confirmation
+pmc old-command       # asks for confirmation
+pmc -y old-command    # does not ask for confirmation
 ```
 
 ---
