@@ -1,0 +1,15 @@
+#!/bin/bash
+
+output_file="$1"
+shift
+
+# Create or overwrite the output file
+echo -n "" > "$USEFUL_SCRIPT_BIN/../aliases/$output_file"
+
+# Join all the remaining arguments into a single string
+contents="$*"
+
+# Write the contents to the output file
+echo "$contents" >> "$USEFUL_SCRIPT_BIN/../aliases/$output_file"
+
+update-profile --alias $output_file "$(cat $USEFUL_SCRIPT_BIN/../aliases/$output_file)"
