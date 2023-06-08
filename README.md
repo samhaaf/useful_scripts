@@ -145,7 +145,7 @@ Pushes files around (with rsync). Handles any of the following:
 - local to remote
 - remote to local
 
-To specify a remote target, use a `#` followed by the name of the target. 
+To specify a remote target, define it using `define-server` and then use it here with the syntax `#<server-name>`. 
 
 Examples:
 ```
