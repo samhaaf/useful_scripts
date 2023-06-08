@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ls $USEFUL_SCRIPTS_DIR/commands

@@ -1,3 +1,0 @@
-#!/bin/bash
-
-ls $USEFUL_SCRIPT_BIN

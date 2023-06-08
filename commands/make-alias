@@ -1,0 +1,16 @@
+#!/bin/bash
+
+output_file="$1"
+output_path="$USEFUL_SCRIPTS_DIR/aliases/$output_file"
+shift
+
+# Create or overwrite the output file
+echo -n "" > "$output_path"
+
+# Join all the remaining arguments into a single string
+contents="$*"
+
+# Write the contents to the output file
+echo "$contents" >> "$output_path"
+
+add-to-profile --alias $output_file "$(cat $output_path)"

@@ -20,7 +20,17 @@ while [[ "$#" -gt 0 ]]; do
       code="$1"
       shift
       ;;
+    --code)
+      execute_code=true
+      shift
+      code="$1"
+      shift
+      ;;
     -t)
+      tunnel=true
+      shift
+      ;;
+    --tunnel)
       tunnel=true
       shift
       ;;

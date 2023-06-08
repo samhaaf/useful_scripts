@@ -13,7 +13,7 @@ parse_argument() {
     local cmd="${arg#?}"
     local cmd_path="${cmd#*:}"
     cmd="${cmd%%:*}"
-    local result="$(eval "$cmd")"
+    local result="$(eval "$USEFUL_SCRIPTS_DIR/servers/$cmd")"
     # Check if cmd_path is empty and set it to the default value if needed
     if [ "$cmd_path" == "$arg" ]; then
       cmd_path="~/"

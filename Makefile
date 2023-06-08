@@ -1,16 +1,18 @@
 
 
 setup:
-	@chmod +x ./bin/*
-	@bash ./bin/add-to-path "$$(pwd)/bin"
-	@bash ./bin/update-profile USEFUL_SCRIPT_BIN "$$(pwd)/bin"
+	@chmod +x ./commands/*
+	@bash ./commands/add-to-path "$$(pwd)/commands"
+	@bash ./commands/add-to-profile USEFUL_SCRIPTS_DIR "$$(pwd)"
+	@# Add all completions to the profile
 	@for FILE in "$$(pwd)/completions/*"; do \
-		./bin/update-profile --source $$FILE; \
+		./commands/add-to-profile --source $$FILE; \
 	done
+	@# Add all aliases to the profile
 	@for FILE in ./aliases/*; do \
 		filename=$$(basename "$$FILE"); \
 		contents=$$(cat "$$FILE"); \
-		update-profile --alias "$$filename" "$$contents"; \
+		./commands/add-to-profile --alias "$$filename" "$$contents"; \
 	done
 	@mkdir -p servers
 

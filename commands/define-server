@@ -5,8 +5,7 @@ echo "Let's add your server."
 read -p "Server alias: " server_alias
 
 # Check if server file already exists
-script_dir=$(dirname "$0")
-server_dir="$script_dir/../servers"
+server_dir="$USEFUL_SCRIPTS_DIR/servers"
 server_file="$server_dir/$server_alias"
 if [ -f "$server_file" ]; then
     read -p "The server file '$server_alias' already exists. Do you want to update it? (y/n): " confirm_update
