@@ -1,0 +1,33 @@
+#!/bin/bash
+
+uninstall=false
+install=true
+
+# Parse command-line arguments
+for arg in "$@"; do
+    case $arg in
+        --uninstall)
+        uninstall=true
+        install=false
+        ;;
+        --reinstall)
+        uninstall=true
+        install=true
+        ;;
+    esac
+done
+
+# Uninstall Poetry if --uninstall or --reinstall flag is provided
+if [ "$uninstall" = true ]; then
+    echo "Uninstalling Poetry..."
+    curl -sSL https://install.python-poetry.org | python3 - --uninstall
+    if [ "$install" = false ]; then
+        exit 0
+    fi
+fi
+
+# Install Poetry if --install or --reinstall flag is provided or by default
+if [ "$install" = true ]; then
+    echo "Installing Poetry..."
+    curl -sSL https://install.python-poetry.org | python3 -
+fi

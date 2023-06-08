@@ -1,0 +1,42 @@
+#!/bin/bash
+
+version="$1"
+
+if [ -z "$version" ]; then
+    echo "Error: Please provide the Python version as the first argument." >&2
+    exit 1
+fi
+
+# Check if the operating system is macOS
+if [ "$(uname)" == "Darwin" ]; then
+    echo "Installing Python $version on macOS..."
+    brew install python@"$version"
+else
+    # Check if the operating system is a Linux distribution
+    if [ -f "/etc/os-release" ]; then
+        source "/etc/os-release"
+
+        case "$ID" in
+            ubuntu|debian)
+                echo "Installing Python $version on $ID..."
+                sudo apt-get update
+                sudo apt-get install -y python"$version"
+                ;;
+            centos|fedora|rhel)
+                echo "Installing Python $version on $ID..."
+                sudo yum install -y python"$version"
+                ;;
+            *)
+                echo "Error: Unsupported Linux distribution '$ID'. Unable to install Python $version." >&2
+                exit 1
+                ;;
+        esac
+    else
+        echo "Error: Unsupported operating system. Unable to install Python $version." >&2
+        exit 1
+    fi
+fi
+
+# Verify the installation
+echo "Python $version has been installed successfully."
+python"$version" --version
