@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Check if .gitignore file exists
+if [ ! -f .gitignore ]; then
+    echo ".gitignore file does not exist. Creating a new one..."
+    touch .gitignore
+fi
+
+# Iterate over all arguments from $1 onwards
+for rule in "${@:1}"; do
+    # Check if rule already exists in .gitignore
+    if grep -qF "$rule" .gitignore; then
+        echo "Rule '$rule' already exists in .gitignore."
+    else
+        echo "$rule" >> .gitignore
+        echo "Rule '$rule' added to .gitignore."
+    fi
+done
