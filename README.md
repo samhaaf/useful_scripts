@@ -14,7 +14,7 @@ To get the most recent version of the scripts on this machine, run:
 make sync
 ```
 
-and that's it.
+<br>
 
 ## Commands
 
