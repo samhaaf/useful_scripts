@@ -1,5 +1,29 @@
 #!/bin/bash
 
-p $USEFUL_SCRIPTS_DIR/commands/$1
+# Check if -y option is provided in $1 or $2
+confirmation=false
+if [[ "$1" == "-y" || "$2" == "-y" ]]; then
+    confirmation=true
+    if [[ "$1" == "-y" ]]; then
+        shift
+    fi
+fi
 
-chmod +x $USEFUL_SCRIPTS_DIR/commands/$1
+COMMAND_NAME="$1"
+target_file="$USEFUL_SCRIPTS_DIR/commands/$COMMAND_NAME"
+
+# Check if the target file exists
+if [ -e "$target_file" ]; then
+    # Ask for confirmation if -y option is not provided
+    if ! $confirmation; then
+        read -p "The target file '$COMMAND_NAME' already exists. Do you want to proceed? [y/N] " response
+        if [[ "$response" != "y" && "$response" != "Y" ]]; then
+            echo "Operation canceled."
+            exit 0
+        fi
+    fi
+fi
+
+# Proceed with the remaining commands
+paste-from-clipboard "$target_file"
+chmod +x "$target_file"
