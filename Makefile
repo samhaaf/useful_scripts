@@ -20,4 +20,4 @@ setup:
 sync:
 	git fetch
 	git pull
-	make setup-local
+	make setup
