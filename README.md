@@ -1,5 +1,5 @@
 # useful_scripts
-The intent of this library is to centralize the tools that I use to be more efficient behind the wheel.
+These are the tools that I use to be more efficient behind the wheel.
 
 ## Setup
 After cloning the repositories, simply run:
