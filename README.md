@@ -75,7 +75,7 @@ Some of these tools let you operate on "server" "objects" (i.e. push, goto). Thi
 ---
   
 ### gittree (Alias: gree)
-Prints to stdout in the same format as the native `tree` command, but it skips files that match patterns in the `.gitignore` files.
+It's like the native `tree` command, but it skips files that match patterns in the `.gitignore` files.
 
 ---
 
