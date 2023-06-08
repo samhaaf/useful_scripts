@@ -1,5 +1,5 @@
 # useful_scripts
-These are the tools that I use to be more efficient behind the wheel.
+These are the tools that I use to be more efficient in the black box.
 
 These scripts should run equivalently on MacOS and all linux distros.
 
