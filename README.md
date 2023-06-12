@@ -29,14 +29,14 @@ Adds all arguments as patterns in ./.gitignore. Ignores rules that already exist
 ---
 
 ### add-to-path
-Adds the first argument to the `$PATH` variable, if it is not already a part of the path. 
+Adds the first argument to the `$PATH` variable, if it is not already a part of the path.
 
 You may want to run `sp` (source-profile) after this change.
 
 ---
 
 ### add-to-profile
-Adds a variable to all of the system bash profiles, if it is not already defined in each file. 
+Adds a variable to all of the system bash profiles, if it is not already defined in each file.
 
 You may want to run `sp` (source-profile) after this change.
 
@@ -69,11 +69,11 @@ c echo "hey there, fella"
 
 ---
 
-### define-server 
+### define-server
 Some of these tools let you operate on "server" "objects" (i.e. push, goto). This script starts a cli to configure a server connection object.
 
 ---
-  
+
 ### gittree (Alias: gree)
 It's like the native `tree` command, but it skips files that match patterns in the `.gitignore` files.
 
@@ -128,7 +128,7 @@ p my_file.txt
 Pastes the contents of the clipboard to a new or existing command. Existing commands will ask the user for confirmation.
 
 Example:
-``` 
+```
 pmc new-command       # does not ask for confirmation
 pmc old-command       # asks for confirmation
 pmc -y old-command    # does not ask for confirmation
@@ -136,14 +136,57 @@ pmc -y old-command    # does not ask for confirmation
 
 ---
 
-### push 
+### pip
+Works hand-in-hand with the python command.
+
+Runs any version of python -m pip.
+
+If poetry is found in the current directory lineage, then it will use poetry.
+
+Both `add` and `install` do the same behavior.
+
+If simple "pip freeze" is called, then it will generate `./requirements.txt`.
+
+The `--quiet` or `-q` flags will suppress output made by this script.
+
+Examples:
+```
+# Base cases
+pip install my_package       
+    Executing command: python3.10 -m pip install my_package
+    Collecting my_package
+    ...
+pip add my_package       
+    Executing command: python3.10 -m pip install my_package
+    Collecting my_package
+    ...
+pip freeze
+    Executing command: python3.10 -m pip freeze > requirements.txt
+
+# Specific version cases
+pip --version 3.11 install my_package   
+    Do you want to set Python 3.11 as the default version? (y/n) y
+    ...
+
+# Poetry cases (pyproject.toml is found)
+pip install my_package    
+    Executing command: poetry add my_package
+pip add my_package    
+    Executing command: poetry add my_package
+pip freeze
+    Executing command: poetry export --format=requirements.txt --without-hashes > requirements.txt
+```
+
+---
+
+### push
 Pushes files around (with rsync). Handles any of the following:
 
 - local to local
 - local to remote
 - remote to local
 
-To specify a remote target, use a `#` followed by the name of the target. 
+To specify a remote target, use a `#` followed by the name of the target.
 
 Examples:
 ```
@@ -154,8 +197,52 @@ push #my-instance:/path/to/foo /path/to/bar    # remote to local
 
 ---
 
+### python
+Runs any version of python.
+
+If poetry is found in the current directory lineage, then it will use poetry.
+
+The `--quiet` or `-q` flags will suppress output made by this script.
+
+Note that when you normally call `--version` you get the version of python being
+used, but in this script it actually instructs which version to use.
+
+Examples:
+```
+# Base case
+python my_script.py                     
+    Which version of Python do you want to run? 3.10
+    Do you want to set Python 3.10 as the default version? (y/n) y
+
+# Specific version case
+python --version 3.11 my_script.py      
+    Do you want to set Python 3.11 as the default version? (y/n) y
+    Python 3.11 is not installed. Do you want to install it? (y/n) y
+    Installing Python 3.11 on macOS...
+
+# Poetry case (pyproject.toml is found)
+python my_script.py    
+    Executing command: poetry run python my_script
+```
+
+---
+
+### rm-pycache
+Removes `__pycache__/` from this directory and all subdirectories.
+
+---
+
 ### source-profile (Alias: sp)
 
 Sources the bash profile into the current context.
 
 (Note: This one is actually itself an alias)
+
+---
+
+### sync-useful-scripts
+
+Runs this project's "make sync" command.
+
+Useful if you use this repo as a dependency in another project and want to make
+sure the most recent version is being used.

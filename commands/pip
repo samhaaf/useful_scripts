@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# Process flags
+while [[ "$1" == -* ]]; do
+  case "$1" in
+    --version)
+      VERSION="$2"
+      shift 2
+      ;;
+    --quiet|-q)
+      QUIET=true
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+# Set remaining arguments as PARAMS
+PARAMS="${@:1}"
+
+# Check for pyproject.toml in current and parent directories
+dir="$PWD"
+while true; do
+  if [[ -f "$dir/pyproject.toml" ]]; then
+    case "$PARAMS" in
+      install*|add*)
+        ACTION="poetry $PARAMS"
+        shift
+        PARAMS="${@:1}"
+        ;;
+      freeze*)
+        ACTION="poetry export --format=requirements.txt --without-hashes"
+        OUTPUT_FILE="requirements.txt"
+        ;;
+      *)
+        ACTION="poetry run python -m pip $PARAMS"
+        ;;
+    esac
+
+    if [[ "$QUIET" == "true" ]]; then
+      if [[ -n "$OUTPUT_FILE" ]]; then
+        eval "$ACTION" > "$OUTPUT_FILE"
+      else
+        eval "$ACTION"
+      fi
+    else
+      if [[ -n "$OUTPUT_FILE" ]]; then
+        echo "Executing command: $ACTION > $OUTPUT_FILE"
+        eval "$ACTION" > "$OUTPUT_FILE"
+      else
+        echo "Executing command: $ACTION"
+        eval "$ACTION"
+      fi
+    fi
+
+    exit 0
+  fi
+  if [[ "$dir" == "/" ]]; then
+    break
+  fi
+  dir=$(dirname "$dir")
+done
+
+# Create the directory path if it doesn't exist
+mkdir -p "$USEFUL_SCRIPTS_DIR/var"
+
+# Check if "$USEFUL_SCRIPTS_DIR/var/python" exists
+if [[ -f "$USEFUL_SCRIPTS_DIR/var/python" ]]; then
+  # Check if DEFAULT_VERSION is set
+  version_line=$(grep -E "^DEFAULT_VERSION=" "$USEFUL_SCRIPTS_DIR/var/python")
+  if [[ -n "$version_line" ]]; then
+    DEFAULT_VERSION=$(echo "$version_line" | cut -d'=' -f2)
+    VERSION="$DEFAULT_VERSION"
+  fi
+fi
+
+# Ask user for the desired version if not provided as a flag
+if [[ -z "$VERSION" ]]; then
+  read -p "Which version of Python do you want to run? " VERSION
+fi
+
+# Only ask if they want to set it as the default version if it's not already the default
+if [[ "$VERSION" != "$DEFAULT_VERSION" ]]; then
+  read -p "Do you want to set Python $VERSION as the default version? (y/n) " answer
+  if [[ "$answer" == "y" ]]; then
+    # Check if the line already exists and replace it if found
+    if grep -q "^DEFAULT_VERSION=" "$USEFUL_SCRIPTS_DIR/var/python"; then
+      sed -i "" "s/^DEFAULT_VERSION=.*/DEFAULT_VERSION=$VERSION/" "$USEFUL_SCRIPTS_DIR/var/python"
+    else
+      echo "DEFAULT_VERSION=$VERSION" >> "$USEFUL_SCRIPTS_DIR/var/python"
+    fi
+  fi
+fi
+
+# Check if PARAMS is exactly "freeze"
+if [[ "$PARAMS" == "freeze" ]]; then
+  OUTPUT_FILE="requirements.txt"
+  ACTION="python$VERSION -m pip freeze"
+else
+  ACTION="python$VERSION -m pip $PARAMS"
+fi
+
+if [[ "$QUIET" == "true" ]]; then
+  if [[ -n "$OUTPUT_FILE" ]]; then
+    eval "$ACTION" > "$OUTPUT_FILE"
+  else
+    eval "$ACTION"
+  fi
+else
+  if [[ -n "$OUTPUT_FILE" ]]; then
+    echo "Executing command: $ACTION > $OUTPUT_FILE"
+    eval "$ACTION" > "$OUTPUT_FILE"
+  else
+    echo "Executing command: $ACTION"
+    eval "$ACTION"
+  fi
+fi
+
+exit 0

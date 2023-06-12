@@ -2,6 +2,7 @@
 
 MODE="export"
 SED_ARGS="-i"
+DELETE=false
 
 # Check if we're on macOS
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -19,6 +20,10 @@ do
     --source)
       MODE="source"
       shift # Remove --source from processing
+      ;;
+    --delete)
+      DELETE=true
+      shift # Remove --delete from processing
       ;;
   esac
 done
@@ -54,12 +59,14 @@ do
         fi
     fi
 
-    # Add the variable, alias, or source to the file
-    if [ "$MODE" = "alias" ] ; then
-        echo "alias $VAR='$VALUE'" >> "$FILE"
-    elif [ "$MODE" = "export" ] ; then
-        echo "export $VAR=$VALUE" >> "$FILE"
-    elif [ "$MODE" = "source" ] ; then
-        echo "source $VAR" >> "$FILE"
+    # If DELETE is true, do not add the variable, alias, or source back
+    if [ "$DELETE" = false ] ; then
+        if [ "$MODE" = "alias" ] ; then
+            echo "alias $VAR='$VALUE'" >> "$FILE"
+        elif [ "$MODE" = "export" ] ; then
+            echo "export $VAR=$VALUE" >> "$FILE"
+        elif [ "$MODE" = "source" ] ; then
+            echo "source $VAR" >> "$FILE"
+        fi
     fi
 done
