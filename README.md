@@ -1,7 +1,7 @@
 # useful_scripts
-These are the tools that I use to be more efficient behind the wheel.
+These are the tools that I use to be more efficient in the black box.
 
-These scripts should run equivalently on MacOS and all linux distros.
+These scripts should run equivalently on MacOS and all major linux distros.
 
 <br>
 
@@ -12,7 +12,9 @@ After cloning the repositories, simply run:
 make setup
 ```
 
-To get the most recent version of the scripts on this machine, run:
+And all of these scripts will be in your $PATH. To use in the current shell, source your profile script.
+
+To get the most recent updates, run:
 
 ```
 make sync
@@ -186,7 +188,8 @@ Pushes files around (with rsync). Handles any of the following:
 - local to remote
 - remote to local
 
-To specify a remote target, use a `#` followed by the name of the target.
+
+To specify a remote target, define it using `define-server` and then use it here with the syntax `#<server-name>`. 
 
 Examples:
 ```
