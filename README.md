@@ -155,20 +155,18 @@ Examples:
 ```
 # Base cases
 pip install my_package       
+    Which version of Python do you want to run? 3.10
+    Do you want to set Python 3.10 as the default version? (y/n) y
     Executing command: python3.10 -m pip install my_package
-    Collecting my_package
-    ...
 pip add my_package       
     Executing command: python3.10 -m pip install my_package
-    Collecting my_package
-    ...
 pip freeze
     Executing command: python3.10 -m pip freeze > requirements.txt
 
 # Specific version cases
 pip --version 3.11 install my_package   
     Do you want to set Python 3.11 as the default version? (y/n) y
-    ...
+    Executing command: python3.11 -m pip install my_package
 
 # Poetry cases (pyproject.toml is found)
 pip install my_package    
@@ -216,16 +214,19 @@ Examples:
 python my_script.py                     
     Which version of Python do you want to run? 3.10
     Do you want to set Python 3.10 as the default version? (y/n) y
+    Executing command: python3.10 my_script.py
 
 # Specific version case
 python --version 3.11 my_script.py      
     Do you want to set Python 3.11 as the default version? (y/n) y
     Python 3.11 is not installed. Do you want to install it? (y/n) y
     Installing Python 3.11 on macOS...
+    ...
+    Executing command: python3.11 my_script.py
 
 # Poetry case (pyproject.toml is found)
 python my_script.py    
-    Executing command: poetry run python my_script
+    Executing command: poetry run python my_script.py
 ```
 
 ---
