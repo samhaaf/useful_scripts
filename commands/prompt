@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Save the current directory
+CURRENT_DIR=$(pwd)
+
+# Check if ai_toolkit directory exists
+if [ ! -d "$USEFUL_SCRIPTS_DIR/resources/ai_toolkit" ]; then
+    # Create the directory structure
+    mkdir -p "$USEFUL_SCRIPTS_DIR/resources"
+
+    # Clone ai_toolkit repository
+    git clone git@github.com:samhaaf/ai_toolkit.git "$USEFUL_SCRIPTS_DIR/resources/ai_toolkit"
+
+    # Change directory to ai_toolkit
+    cd "$USEFUL_SCRIPTS_DIR/resources/ai_toolkit"
+
+    # Run 'make install'
+    make install
+
+    # Run 'make prompt'
+    make prompt
+
+    # Return to the original directory
+    cd "$CURRENT_DIR"
+else
+    # If ai_toolkit directory already exists, change directory directly
+    cd "$USEFUL_SCRIPTS_DIR/resources/ai_toolkit"
+
+    # Run 'make update'
+    make update
+
+    # Run 'make prompt'
+    make prompt
+
+    # Return to the original directory
+    cd "$CURRENT_DIR"
+fi

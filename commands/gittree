@@ -3,6 +3,7 @@
 shopt -s nullglob  # This line is added
 
 MAX_DEPTH=4
+USE_MINIMIZED_FORMAT=false
 
 # Function to check if a string matches a pattern using regex
 IS_MATCH() {
@@ -32,7 +33,9 @@ traverse() {
 
     # If directory is empty or beyond max depth, return
     if [ -z "$(ls -A "$current_path")" ] || ([ "$depth" -gt "$MAX_DEPTH" ] && [ "$MAX_DEPTH" -ne 0 ]); then
-        echo "${padding}└── ..."
+        if ! $USE_MINIMIZED_FORMAT; then
+            echo "${padding}└── ..."
+        fi
         return
     fi
 
@@ -64,22 +67,33 @@ traverse() {
         # If file is not ignored, print and recurse if directory
         if ! $is_ignored; then
             if [ -d "$file" ]; then
-                if [[ "$file" == "$last_item" ]]; then
-                    echo "${padding}└── $(basename "$file")/"
+                if $USE_MINIMIZED_FORMAT; then
+                    echo -e "${padding}$(basename "$file")/"
                     if [ -n "$(ls -A "$file")" ]; then
-                        traverse "$file" "${padding}    " $((depth + 1)) "$current_ignored_paths"  # use spaces for padding
+                        traverse "$file" "${padding}-" $((depth + 1)) "$current_ignored_paths"
                     fi
                 else
-                    echo "${padding}├── $(basename "$file")/"
-                    if [ -n "$(ls -A "$file")" ]; then
-                        traverse "$file" "${padding}│   " $((depth + 1)) "$current_ignored_paths"  # use spaces for padding
+                    if [[ "$file" == "$last_item" ]]; then
+                        echo "${padding}└── $(basename "$file")/"
+                        if [ -n "$(ls -A "$file")" ]; then
+                            traverse "$file" "${padding}    " $((depth + 1)) "$current_ignored_paths"  # use spaces for padding
+                        fi
+                    else
+                        echo "${padding}├── $(basename "$file")/"
+                        if [ -n "$(ls -A "$file")" ]; then
+                            traverse "$file" "${padding}│   " $((depth + 1)) "$current_ignored_paths"  # use spaces for padding
+                        fi
                     fi
                 fi
             else
-                if [[ "$file" == "$last_item" ]]; then
-                    echo "${padding}└── $(basename "$file")"
+                if $USE_MINIMIZED_FORMAT; then
+                    echo -e "${padding}$(basename "$file")"
                 else
-                    echo "${padding}├── $(basename "$file")"
+                    if [[ "$file" == "$last_item" ]]; then
+                        echo "${padding}└── $(basename "$file")"
+                    else
+                        echo "${padding}├── $(basename "$file")"
+                    fi
                 fi
             fi
         fi
@@ -91,6 +105,10 @@ for arg in "$@"; do
     case $arg in
         --max-depth=*)
         MAX_DEPTH="${arg#*=}"
+        shift
+        ;;
+        --min-tokens)
+        USE_MINIMIZED_FORMAT=true
         shift
         ;;
     esac

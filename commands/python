@@ -18,7 +18,7 @@ while [[ "$1" == -* ]]; do
 done
 
 # Set remaining arguments as PARAMS
-PARAMS="${@:1}"
+PARAMS=("$@")
 
 # Check for pyproject.toml in current and parent directories
 dir="$PWD"
@@ -28,15 +28,15 @@ while true; do
       if [[ -z "$PARAMS" ]]; then
         poetry run python
       else
-        poetry run python "$PARAMS"
+        poetry run python "${PARAMS[@]}"
       fi
     else
       if [[ -z "$PARAMS" ]]; then
         echo "Executing command: poetry run python"
         poetry run python
       else
-        echo "Executing command: poetry run python $PARAMS"
-        poetry run python "$PARAMS"
+        echo "Executing command: poetry run python ${PARAMS[*]}"
+        poetry run python "${PARAMS[@]}"
       fi
     fi
     exit 0
@@ -94,15 +94,15 @@ if [[ "$QUIET" == "true" ]]; then
   if [[ -z "$PARAMS" ]]; then
     "python$VERSION"
   else
-    "python$VERSION" "$PARAMS"
+    "python$VERSION" "${PARAMS[@]}"
   fi
 else
   if [[ -z "$PARAMS" ]]; then
     echo "Executing command: python$VERSION"
     "python$VERSION"
   else
-    echo "Executing command: python$VERSION $PARAMS"
-    "python$VERSION" "$PARAMS"
+    echo "Executing command: python$VERSION ${PARAMS[*]}"
+    "python$VERSION" "${PARAMS[@]}"
   fi
 fi
 
