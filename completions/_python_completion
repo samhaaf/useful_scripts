@@ -1,15 +1,41 @@
-_python()
-{
-    local cur prev opts
-    COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
-    files=$(ls -1)
+# Check which shell is running
+if [ -n "$BASH_VERSION" ]; then
+    # Bash completion logic
+    _python_completion() {
+        local cur prev opts
+        COMPREPLY=()
+        cur="${COMP_WORDS[COMP_CWORD]}"
+        prev="${COMP_WORDS[COMP_CWORD-1]}"
+        opts="--version --quiet -q"
 
-    COMPREPLY=( $(compgen -W "${files}" -- ${cur}) )
-    return 0
-}
+        if [[ "$prev" == "python" ]]; then
+            COMPREPLY=( $(compgen -f -- "$cur") )
+            return 0
+        fi
 
-autoload -Uz compinit
-compinit
-compdef _goto_completion python
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+            return 0
+        fi
+    }
+    complete -F _python_completion python
+elif [ -n "$ZSH_VERSION" ]; then
+    # Zsh completion logic
+    _python_completion() {
+        local cur prev opts
+        cur=$LBUFFER
+        opts="--version --quiet -q"
+
+        if [[ $LBUFFER =~ "python " ]]; then
+            _files
+            return
+        fi
+
+        if [[ -n $cur ]]; then
+            _describe 'options' opts
+        fi
+    }
+    autoload -Uz compinit
+    compinit
+    compdef _python_completion python
+fi
