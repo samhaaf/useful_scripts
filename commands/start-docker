@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Check if Docker Desktop is installed
+if ! command -v /Applications/Docker.app/Contents/MacOS/Docker &> /dev/null
+then
+    brew install --cask docker
+fi
+
+# Start Docker Desktop in background
+nohup open --background -a Docker >/dev/null 2>&1 &
+
+# Wait for Docker to finish starting up
+while ! docker system info >/dev/null 2>&1; do sleep 1; done &
