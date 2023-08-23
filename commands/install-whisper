@@ -1,0 +1,45 @@
+#!/bin/bash
+
+REINSTALL=0
+if [ "$1" == "--reinstall" ]; then
+  REINSTALL=1
+fi
+
+brew install ffmpeg
+
+cd ~/code || exit 1
+if [ $REINSTALL -eq 1 ] && [ -d "$WHISPER_PATH" ]; then
+  rm -rf "$WHISPER_PATH"
+fi
+
+git clone git@github.com:ggerganov/whisper.cpp.git
+cd whisper.cpp || exit 1
+
+add-to-profile WHISPER_PATH "$HOME/code/whisper.cpp"
+
+# Create a virtual environment if it doesn't exist or --reinstall flag is set
+if [ ! -d "venv" ] || [ $REINSTALL -eq 1 ]; then
+  python --version 3.10 --no-default -m venv venv
+  source venv/bin/activate
+fi
+
+# Install dependencies if requirements.txt does not exist or --reinstall flag is set
+if [ ! -f "requirements.txt" ] || [ $REINSTALL -eq 1 ]; then
+  pip install openai-whisper
+  pip install ane_transformers
+  pip install coremltools
+fi
+
+WHISPER_COREML=1 make -j
+
+chmod +x ./models/generate-coreml-model.sh
+
+add-to-path /Applications/Xcode.app/Contents/Developer/usr/bin
+
+echo "Next steps: "
+echo "  . Go to the App Store and install Xcode."
+echo "  . Run 'sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer'"
+echo "  . Run 'source-profile' or open a new terminal"
+echo "  . Run 'whisper ./path/to/som/file.wav -o output.json -m medium'"
+echo "The default is medium. The first time you run each model, it's going to download and build some things"
+echo ""

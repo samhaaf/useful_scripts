@@ -21,6 +21,8 @@ done
 if [ "$uninstall" = true ]; then
     echo "Uninstalling Poetry..."
     curl -sSL https://install.python-poetry.org | python3 - --uninstall
+    rm -rf ~/Library/Application\ Support/pypoetry 2>/dev/null
+
     if [ "$install" = false ]; then
         exit 0
     fi

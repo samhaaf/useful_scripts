@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Install universal-ctags
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    sudo apt-get install universal-ctags
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    brew install --HEAD universal-ctags/universal-ctags/universal-ctags
+else
+    echo "Unsupported operating system"
+    exit 1
+fi
+
+# Install aider-chat using pip
+pip install aider-chat

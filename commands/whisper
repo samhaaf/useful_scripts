@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Check if WHISPER_PATH is empty and run install-whisper if it is
+if [ -z "$WHISPER_PATH" ]; then
+  install-whisper
+fi
+
+# Set the default model
+MODEL="medium"
+MODEL_PATH="$WHISPER_PATH/models/ggml-$MODEL.bin"
+
+# Set QUIET to true by default
+QUIET=true
+
+# Parse command-line arguments for --model, --output, and --verbose
+while [ $# -gt 0 ]; do
+  case $1 in
+    -m|--model)
+      MODEL="$2"
+      shift
+      ;;
+    -o|--output)
+      OUTPUT="$2"
+      shift
+      ;;
+    -v|--verbose)
+      QUIET=false
+      ;;
+    *)
+      FILE="$1"
+      ;;
+  esac
+  shift
+done
+
+# Check if the model file exists, if not run make command in the specific directory
+if [ ! -f "$MODEL_PATH" ]; then
+  make -C $WHISPER_PATH $MODEL;
+fi
+
+if [ ! -d "$WHISPER_PATH/models/ggml-$MODEL-encoder.mlmodelc" ]; then
+  PATH="$WHISPER_PATH/venv/bin:$PATH" $WHISPER_PATH/models/generate-coreml-model.sh $MODEL
+fi
+
+# Redirect stdout and stderr if QUIET is true
+if [ "$QUIET" = true ]; then
+  mkdir -p /tmp/whisper
+  TIMESTAMP=$(date +"%s")
+  exec 1>"/tmp/whisper/$TIMESTAMP.stdout"
+  exec 2>"/tmp/whisper/$TIMESTAMP.stderr"
+fi
+
+# Run the main command
+"$WHISPER_PATH/main" -m "$MODEL_PATH" -f "$FILE" --output-json
+
+# Move the json file to OUTPUT if specified
+if [ -n "$OUTPUT" ]; then
+  mv "$FILE.json" "$OUTPUT"
+fi

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Process flags
+NO_PROMPT=false
 while [[ "$1" == -* ]]; do
   case "$1" in
     --version)
@@ -9,6 +10,10 @@ while [[ "$1" == -* ]]; do
       ;;
     --quiet|-q)
       QUIET=true
+      shift
+      ;;
+    --no-default)
+      NO_PROMPT=true
       shift
       ;;
     *)
@@ -65,8 +70,8 @@ if [[ -z "$VERSION" ]]; then
   read -p "Which version of Python do you want to run? " VERSION
 fi
 
-# Only ask if they want to set it as the default version if it's not already the default
-if [[ "$VERSION" != "$DEFAULT_VERSION" ]]; then
+# Only ask if they want to set it as the default version if it's not already the default, and --no-prompt wasn't used
+if [[ "$VERSION" != "$DEFAULT_VERSION" && "$NO_PROMPT" == "false" ]]; then
   read -p "Do you want to set Python $VERSION as the default version? (y/n) " answer
   if [[ "$answer" == "y" ]]; then
     # Check if the line already exists and replace it if found
