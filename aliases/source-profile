@@ -1,1 +1,1 @@
-source ~/.zprofile
+case $SHELL in (*bash*) source ~/.bashrc ;; (*zsh*) source ~/.zprofile ;; (*) echo "Unsupported shell: $SHELL" ;; esac
