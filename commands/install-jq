@@ -1,0 +1,54 @@
+#!/bin/bash
+set -e
+
+# Check if jq is already installed
+if command -v jq &> /dev/null; then
+    echo "jq is already installed. Exiting."
+    exit 0
+fi
+
+# Function to identify the OS type
+detect_os_type() {
+    if [ "$(uname)" == "Darwin" ]; then
+        echo "mac"
+    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+        echo "linux"
+    else
+        echo "unknown"
+    fi
+}
+
+# Function to install jq on macOS
+install_jq_mac() {
+    install-brew
+    brew install jq
+}
+
+# Function to install jq on Linux
+install_jq_linux() {
+    if [ -f "/etc/debian_version" ]; then
+        sudo apt-get update
+        sudo apt-get install -y jq
+    elif [ -f "/etc/redhat-release" ]; then
+        sudo yum install -y jq
+    elif [ -f "/etc/arch-release" ]; then
+        sudo pacman -S jq
+    else
+        echo "Unknown Linux distribution. Exiting."
+        exit 1
+    fi
+}
+
+# Main installation logic
+os_type=$(detect_os_type)
+
+if [ "$os_type" == "mac" ]; then
+    install_jq_mac
+elif [ "$os_type" == "linux" ]; then
+    install_jq_linux
+else
+    echo "Unsupported OS type: $os_type"
+    exit 1
+fi
+
+echo "jq installation successful!"

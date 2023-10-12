@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Generate a random string of a given length
+generate_random_string() {
+    length=$1
+    chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    random_string=""
+    for i in $(seq 1 $length); do
+        random_char=${chars:RANDOM % ${#chars}:1}
+        random_string="${random_string}${random_char}"
+    done
+    echo "$random_string"
+}
+
+# # Check if the directory exists or not
+# if [ -d "$1" ]; then
+#     echo "Error: Directory $1 already exists."
+#     exit 1
+# fi
+
+# Create the directory
+mkdir -p "$1"
+
+# Change to the directory
+cd "$1"
+
+# Create sub-directories
+mkdir -p folder1 folder2 folder3
+
+# Generate text files with some text content
+random_suffix1=$(generate_random_string 6)
+random_suffix2=$(generate_random_string 6)
+random_suffix3=$(generate_random_string 6)
+echo "This is a sample text for file1_${random_suffix1}.txt" > folder1/file1_${random_suffix1}.txt
+echo "This is a sample text for file2_${random_suffix2}.txt" > folder2/file2_${random_suffix2}.txt
+echo "This is a sample text for file3_${random_suffix3}.txt" > folder3/file3_${random_suffix3}.txt
+
+# Generate binary files with random content
+dd if=/dev/urandom of=folder1/file1_${random_suffix1}.bin bs=1024 count=1 2>/dev/null
+dd if=/dev/urandom of=folder2/file2_${random_suffix2}.bin bs=1024 count=1 2>/dev/null
+dd if=/dev/urandom of=folder3/file3_${random_suffix3}.bin bs=1024 count=1 2>/dev/null
+
+echo "Fake data generation complete."

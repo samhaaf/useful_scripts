@@ -1,0 +1,92 @@
+#!/bin/bash
+set -e
+set -x  # Enable trace mode for better debugging
+
+# Initialize debug flag as false
+DEBUG_MODE=false
+
+# Parse arguments for --debug flag
+for arg in "$@"; do
+    if [ "$arg" == "--debug" ]; then
+        DEBUG_MODE=true
+        break
+    fi
+done
+
+# Log message function for debug mode
+log_debug() {
+    if [ "$DEBUG_MODE" == "true" ]; then
+        echo "[DEBUG] $1"
+    fi
+}
+
+# Remove --debug flag from positional parameters if present
+if [ "$DEBUG_MODE" == "true" ]; then
+    shift
+fi
+
+# Step 0: Initialize
+log_debug "Initializing..."
+if [ -z "$1" ]; then
+    echo "Usage: restore <directory> [destination]"
+    exit 1
+fi
+destination="$2"  # Capture the destination directory
+if [ ! -f ~/.stash/meta.json ]; then
+    echo "Error: Meta file not found."
+    exit 1
+fi
+
+# Step 1: Read the meta.json file
+log_debug "Reading meta.json..."
+dir_path=$(get-abs-path "$1")
+meta_entry=$(jq -r --arg path "$dir_path" '.[$path] | @json' ~/.stash/meta.json)
+
+# Check if the directory entry exists in meta.json
+if [ "$meta_entry" == "null" ] || [ -z "$meta_entry" ]; then
+    echo "Error: Directory not found in stash."
+    exit 1
+fi
+
+# Step 2: Prompt for password
+log_debug "Prompting for password..."
+echo -n "Enter the password for decryption: "
+read -s password
+echo
+
+# Initialize an array to keep track of successfully decrypted files
+successful_files=()
+
+# Step 3: Iterate through the stash files and decrypt them
+log_debug "Starting decryption..."
+IFS=$'\n'  # set the delimiter to newline for the loop
+for file in $(echo "$meta_entry" | jq -r '.[]'); do
+    stash_file_path=~/.stash/$file
+    if [ ! -f "$stash_file_path" ]; then
+        echo "Error: stash file $stash_file_path not found."
+        exit 1
+    fi
+
+    log_debug "Decrypting file: $stash_file_path"
+    target_directory="$(dirname "$dir_path")"
+    if openssl enc -d -aes256 -pbkdf2 -pass pass:"$password" -in "$stash_file_path" | tar -xz -C "$target_directory"; then
+        successful_files+=("$file")
+    fi
+
+    if [ -n "$destination" ]; then
+        original_folder_name=$(basename "$dir_path")
+        mv "$target_directory/$original_folder_name" "$target_directory/$destination"
+    fi
+done
+
+# Step 4: Remove the successfully decrypted files from meta.json
+log_debug "Updating meta.json..."
+for file in "${successful_files[@]}"; do
+    jq --arg path "$dir_path" --arg file "$file" '(.[$path] -= [$file])' ~/.stash/meta.json > tmp.json && mv tmp.json ~/.stash/meta.json
+done
+
+# Remove the key-value pair if the array is empty
+jq --arg path "$dir_path" 'if .[$path] == [] then del(.[$path]) else . end' ~/.stash/meta.json > tmp.json && mv tmp.json ~/.stash/meta.json
+
+# Step 5: Done
+log_debug "Restoration complete."

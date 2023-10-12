@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Function to get the absolute path of a file or directory
+get_abs_path() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        [[ "$1" = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+    else
+        # Linux and others
+        readlink -f "$1"
+    fi
+}
+
+# Check for input
+if [ -z "$1" ]; then
+    echo "Usage: get-abs-path <path>"
+    exit 1
+fi
+
+# Output the absolute path
+get_abs_path "$1"
