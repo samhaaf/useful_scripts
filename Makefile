@@ -15,6 +15,8 @@ setup:
 		./commands/add-to-profile --alias "$$filename" "$$contents"; \
 	done
 	@mkdir -p servers
+	@add-to-profile GIT_SSH_COMMAND 'ssh -o LogLevel=ERROR'
+
 
 
 sync:

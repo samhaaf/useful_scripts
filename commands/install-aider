@@ -9,7 +9,6 @@ is_package_installed() {
     fi
 }
 
-
 # Check for --no-upgrade flag and if aider-chat is already installed
 if [[ "$1" == "--no-upgrade" ]]; then
     if is_package_installed "aider-chat"; then
