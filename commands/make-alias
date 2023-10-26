@@ -14,3 +14,6 @@ contents="$*"
 echo "$contents" >> "$output_path"
 
 add-to-profile --alias $output_file "$(cat $output_path)"
+
+cd "$USEFUL_SCRIPTS_DIR"
+make setup

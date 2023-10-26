@@ -2,3 +2,4 @@
 
 cd $USEFUL_SCRIPTS_DIR
 make sync
+make setup

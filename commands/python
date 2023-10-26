@@ -1,15 +1,23 @@
 #!/bin/bash
 
+install-poetry --quiet-on-do-nothing
+
 # Process flags
 NO_PROMPT=false
+NO_POETRY=false
+QUIET=true
 while [[ "$1" == -* ]]; do
   case "$1" in
     --version)
       VERSION="$2"
       shift 2
       ;;
-    --quiet|-q)
-      QUIET=true
+    --explain|--verbose)
+      QUIET=false
+      shift
+      ;;
+    --no-poetry)
+      NO_POETRY=true
       shift
       ;;
     --no-default)
@@ -25,32 +33,35 @@ done
 # Set remaining arguments as PARAMS
 PARAMS=("$@")
 
-# Check for pyproject.toml in current and parent directories
+# Check for pyproject.toml in current and parent directories if poetry is not disabled
 dir="$PWD"
-while true; do
-  if [[ -f "$dir/pyproject.toml" ]]; then
-    if [[ "$QUIET" == "true" ]]; then
-      if [[ -z "$PARAMS" ]]; then
-        poetry run python
+if [[ "$NO_POETRY" == "false" ]]; then
+  while true; do
+    if [[ -f "$dir/pyproject.toml" ]]; then
+      if [[ "$QUIET" == "true" ]]; then
+        if [[ -z "$PARAMS" ]]; then
+          poetry run python
+        else
+          poetry run python "${PARAMS[@]}"
+        fi
       else
-        poetry run python "${PARAMS[@]}"
+        if [[ -z "$PARAMS" ]]; then
+          echo "Executing command: poetry run python"
+          poetry run python
+        else
+          echo "Executing command: poetry run python ${PARAMS[*]}"
+          poetry run python "${PARAMS[@]}"
+        fi
       fi
-    else
-      if [[ -z "$PARAMS" ]]; then
-        echo "Executing command: poetry run python"
-        poetry run python
-      else
-        echo "Executing command: poetry run python ${PARAMS[*]}"
-        poetry run python "${PARAMS[@]}"
-      fi
+      exit 0
     fi
-    exit 0
-  fi
-  if [[ "$dir" == "/" ]]; then
-    break
-  fi
-  dir=$(dirname "$dir")
-done
+    if [[ "$dir" == "/" ]]; then
+      break
+    fi
+    dir=$(dirname "$dir")
+  done
+fi
+
 
 # Create the directory path if it doesn't exist
 mkdir -p "$USEFUL_SCRIPTS_DIR/var"

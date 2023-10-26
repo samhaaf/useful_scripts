@@ -21,7 +21,7 @@ do
       MODE="source"
       shift # Remove --source from processing
       ;;
-    --delete)
+    --delete|--remove)
       DELETE=true
       shift # Remove --delete from processing
       ;;

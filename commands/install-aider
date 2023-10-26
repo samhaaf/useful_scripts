@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# Function to check if a package is installed
+is_package_installed() {
+    if python --no-poetry -m pip show "$1" > /dev/null 2>&1; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+
+# Check for --no-upgrade flag and if aider-chat is already installed
+if [[ "$1" == "--no-upgrade" ]]; then
+    if is_package_installed "aider-chat"; then
+        exit 0
+    fi
+fi
+
 # Install universal-ctags
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     sudo apt-get install universal-ctags
@@ -10,5 +27,9 @@ else
     exit 1
 fi
 
-# Install aider-chat using pip
-pip install aider-chat
+# Install or upgrade aider-chat using pip
+if is_package_installed "aider-chat"; then
+    python -m pip install aider-chat --upgrade
+else
+    python -m pip install aider-chat
+fi

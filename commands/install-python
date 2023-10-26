@@ -1,5 +1,8 @@
 #!/bin/bash
 
+install-poetry --quiet-on-do-nothing
+source-profile
+
 version="$1"
 
 if [ -z "$version" ]; then

@@ -17,3 +17,25 @@ if command -v brew >/dev/null 2>&1; then
 else
     echo "Error: Homebrew installation failed." >&2
 fi
+
+# Commands to append to each profile file
+append_cmds="
+echo
+echo 'eval \"\$(/opt/homebrew/bin/brew shellenv)\"'
+"
+
+# Loop through each profile file and append the commands
+for FILE in ~/.zprofile ~/.profile ~/.bash_profile ~/.zshrc; do
+    # Check if the file exists or create it
+    if [ ! -f "$FILE" ]; then
+        touch "$FILE"
+    fi
+
+    # Append the commands to the file
+    echo "$append_cmds" >> "$FILE"
+done
+
+# Evaluate the Homebrew shell environment
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+echo "Installation complete and each profile script has been updated".

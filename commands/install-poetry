@@ -2,6 +2,7 @@
 
 uninstall=false
 install=true
+quiet=false
 
 # Parse command-line arguments
 for arg in "$@"; do
@@ -14,6 +15,9 @@ for arg in "$@"; do
         uninstall=true
         install=true
         ;;
+        --quiet-on-do-nothing)
+        quiet=true
+        ;;
     esac
 done
 
@@ -22,14 +26,15 @@ if [ "$uninstall" = true ]; then
     echo "Uninstalling Poetry..."
     curl -sSL https://install.python-poetry.org | python3 - --uninstall
     rm -rf ~/Library/Application\ Support/pypoetry 2>/dev/null
-
-    if [ "$install" = false ]; then
-        exit 0
-    fi
 fi
 
-# Install Poetry if --install or --reinstall flag is provided or by default
-if [ "$install" = true ]; then
+# Check if Poetry is installed using 'which'
+if ! which poetry &> /dev/null; then
     echo "Installing Poetry..."
     curl -sSL https://install.python-poetry.org | python3 -
+    add-to-path "$HOME/.local/bin"
+else
+    if [ "$quiet" = false ]; then
+        echo "Poetry is already installed. To reinstall, call 'install-poetry --reinstall'"
+    fi
 fi
