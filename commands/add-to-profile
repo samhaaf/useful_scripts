@@ -31,10 +31,11 @@ done
 VAR=$1
 VALUE=$2
 
-# Check if VALUE contains spaces, and if so, wrap it in quotes
-if [[ "$VALUE" == *" "* ]]; then
+# Check if VALUE contains spaces, and if so, wrap it in quotes (only for export mode)
+if [[ "$MODE" == "export" && "$VALUE" == *" "* ]]; then
     VALUE="\"$VALUE\""
 fi
+
 
 # Check if the variable is PATH
 if [ "$VAR" == "PATH" ] ; then

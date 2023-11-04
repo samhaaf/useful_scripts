@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Determine the operating system to decide the sed syntax
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    sed_option="-i"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    sed_option="-i ''"
+else
+    echo "Unsupported OS"
+    exit 1
+fi
+
+# Run the existing source-profile and capture any error
+error_output=$(source-profile 2>&1 >/dev/null)
+
+# Extract the file name and line number from the error message
+IFS=":" read -ra PARTS <<< "$error_output"
+if [[ ${#PARTS[@]} -ge 3 ]]; then
+    file_name="${PARTS[0]}"
+    line_number="${PARTS[2]}"
+else
+    echo "$error_output"
+    echo "No error file and line number found"
+    exit 1
+fi
+
+# Debug: Print the line_number and file_name
+echo "Debug: file_name = $file_name, line_number = $line_number"
+
+# Fetch the whole value of the line from the file at the given line number
+if [[ -z "$line_number" || -z "$file_name" ]]; then
+    echo "Either line number or file name is empty. Exiting."
+    exit 1
+fi
+
+line_value=$(sed -n "${line_number}p" "$file_name")
+
+# Check if line_value is empty
+if [[ -z "$line_value" ]]; then
+    echo "Failed to retrieve the line value. Exiting."
+    exit 1
+fi
+
+# Announce the offending line and its source
+echo "Removing the following line found in $file_name at line $line_number:"
+echo "$line_value"
+
+# Iterate over profile files and remove the problematic line
+for FILE in ~/.zprofile ~/.profile ~/.bash_profile ~/.zshrc; do
+    if [[ -f "$FILE" ]]; then
+        echo "Processing $FILE"
+
+        # Create a temporary file with the line removed
+        awk -v val="$line_value" 'index($0, val) { print "Removing line:", $0; next } 1' "$FILE" > "${FILE}.tmp"
+
+        # Check if the line was actually found and removed
+        if [[ $(diff "$FILE" "${FILE}.tmp" | wc -l) -gt 0 ]]; then
+            echo "Line removed from $FILE."
+        else
+            echo "Line not found in $FILE."
+        fi
+
+        # Replace the original file with the temporary file
+        mv "${FILE}.tmp" "$FILE"
+    else
+        echo "$FILE does not exist, skipping."
+    fi
+done
+
+echo "Cleanup complete"

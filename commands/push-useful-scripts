@@ -1,0 +1,8 @@
+#!/bin/bash
+
+sync-useful-scripts;
+
+cd "$USEFUL_SCRIPTS_DIR";
+git add .;
+commit;
+git push -o LogLevel=ERROR;

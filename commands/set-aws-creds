@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Function to update ~/.aws/credentials
+update_credentials() {
+    echo "[${PROFILE}]" >> ~/.aws/credentials
+    echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials
+    echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials
+}
+
+# Function to update ~/.aws/config
+update_config() {
+    echo "[profile ${PROFILE}]" >> ~/.aws/config
+    echo "region = ${AWS_DEFAULT_REGION}" >> ~/.aws/config
+    echo "output = ${AWS_DEFAULT_OUTPUT}" >> ~/.aws/config
+}
+
+# Ensure the .aws directory exists
+mkdir -p ~/.aws
+
+# Prompt for AWS profile
+read -p "Enter AWS profile name (default): " PROFILE
+PROFILE=${PROFILE:-default}
+
+# Check if profile already exists and ask for confirmation if so
+if grep -q "\[${PROFILE}\]" ~/.aws/credentials; then
+    read -p "Profile '${PROFILE}' already exists. Do you want to overwrite? (y/n): " OVERWRITE
+    if [[ "${OVERWRITE}" != "y" ]]; then
+        echo "Exiting without overwriting existing profile."
+        exit 1
+    fi
+fi
+
+# Prompt for AWS access key ID
+read -sp "Enter AWS access key ID: " AWS_ACCESS_KEY_ID
+echo ""
+
+# Prompt for AWS secret access key
+read -sp "Enter AWS secret access key: " AWS_SECRET_ACCESS_KEY
+echo ""
+
+# Prompt for AWS default region
+read -p "Enter AWS default region (us-east-1): " AWS_DEFAULT_REGION
+AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+
+# Prompt for AWS default output
+read -p "Enter AWS default output (json): " AWS_DEFAULT_OUTPUT
+AWS_DEFAULT_OUTPUT=${AWS_DEFAULT_OUTPUT:-json}
+
+# Remove existing profile from ~/.aws/credentials and ~/.aws/config
+sed -i.bak -e "/\[$PROFILE\]/,/^$/d" ~/.aws/credentials
+sed -i.bak -e "/\[profile $PROFILE\]/,/^$/d" ~/.aws/config
+
+# Update ~/.aws/credentials and ~/.aws/config
+update_credentials
+update_config
+
+chmod 600 ~/.aws/credentials
+
+echo "AWS configuration updated successfully."

@@ -1,1 +1,1 @@
-case $SHELL in (*bash*) source ~/.bashrc ;; (*zsh*) source ~/.zprofile ;; (*) echo "Unsupported shell: $SHELL" ;; esac
+if [[ "$SHELL" == *bash* ]]; then source ~/.bashrc; elif [[ "$SHELL" == *zsh* ]]; then source ~/.zprofile; else echo "Unsupported shell: $SHELL"; fi

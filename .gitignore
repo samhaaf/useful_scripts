@@ -2,3 +2,4 @@ servers/
 var
 commands/poop
 .aider*
+.DS_Store
