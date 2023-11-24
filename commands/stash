@@ -70,3 +70,5 @@ if [ "$no_delete_flag" -eq 0 ]; then
 else
     echo "Original directory preserved due to --no-delete flag."
 fi
+
+clear;
