@@ -1,53 +1,79 @@
 #!/bin/bash
 
-# Check if two arguments are provided
-if [ "$#" -ne 2 ]; then
-  echo "Usage: push <source> <destination>"
+# Function to display the usage of the script
+usage() {
+  echo "Usage: push <source> <destination> [additional rsync options]"
   exit 1
-fi
-
-parse_argument() {
-  local arg="$1"
-  if [[ "$arg" =~ ^# ]]; then
-    # If the argument starts with '#', execute the command and extract the path
-    local cmd="${arg#?}"
-    local cmd_path="${cmd#*:}"
-    cmd="${cmd%%:*}"
-    local result="$(eval "$USEFUL_SCRIPTS_DIR/servers/$cmd")"
-    # Check if cmd_path is empty and set it to the default value if needed
-    if [ "$cmd_path" == "$arg" ]; then
-      cmd_path="~/"
-    fi
-    echo -e "$result\n$cmd_path"
-  else
-    # If the argument does not start with '#', return it as is
-    echo -e "$arg"
-  fi
 }
+
+# Function to build arguments for rsync
+build_args() {
+  local arg="$1"
+  local args
+
+  if [[ "$arg" =~ ^# ]]; then
+    args="$(handle_command_arg "$arg")"
+  else
+    args="$arg"
+  fi
+
+  echo "$args"
+}
+
+# Function to set the default path if cmd_path is empty
+set_default_path_if_needed() {
+  local cmd_path="$1"
+  local arg="$2"
+  [ "$cmd_path" == "$arg" ] && echo " ~/ " || echo "$cmd_path"
+}
+
+# Function to parse the result for rsync arguments
+parse_result_for_rsync() {
+  local result="$1"
+  local result_array=($result)
+  local user_ip="${result_array[0]}"
+  local pem="${result_array[1]}"
+  local rsync_arg
+
+  if [ -n "$pem" ]; then
+    rsync_arg="-e 'ssh -i $pem' ${user_ip}:${default_path}"
+  else
+    rsync_arg="${user_ip}:${default_path}"
+  fi
+
+  echo "$rsync_arg"
+}
+
+# Function to handle command argument
+handle_command_arg() {
+  local arg="$1"
+  local cmd="${arg#?}"
+  local cmd_path="${cmd#*:}"
+  cmd="${cmd%%:*}"
+  local result="$(eval "$USEFUL_SCRIPTS_DIR/servers/$cmd")"
+  local default_path="~/"
+  if [ "$cmd_path" != "$cmd" ]; then
+    default_path="$cmd_path"
+  fi
+  parse_result_for_rsync "$result"
+}
+
+# Main script execution starts here
+if [ "$#" -lt 2 ]; then
+  usage
+fi
 
 src_arg="$1"
 dst_arg="$2"
+shift 2
 
-# Parse the arguments
-IFS=$'\n'
-src=($(parse_argument "$src_arg"))
-dst=($(parse_argument "$dst_arg"))
+# Build the source and destination arguments
+src_args=$(build_args "$src_arg")
+dst_args=$(build_args "$dst_arg")
 
-# Extract user, IP address, PEM file path, and file path
-src_user_ip="${src[0]}"
-dst_user_ip="${dst[0]}"
-src_pem="${src[1]}"
-dst_pem="${dst[1]}"
-src_path="${src[2]}"
-dst_path="${dst[2]}"
+# Capture additional rsync options
+additional_args="$@"
 
-# Perform rsync based on different cases
-if [[ "$src_arg" =~ ^# ]] && [[ "$dst_arg" =~ ^# ]]; then
-  rsync -avz -e "ssh -i $src_pem" "${src_user_ip}:${src_path}" -e "ssh -i $dst_pem" "${dst_user_ip}:${dst_path}"
-elif [[ "$src_arg" =~ ^# ]]; then
-  rsync -avz -e "ssh -i $src_pem" "${src_user_ip}:${src_path}" "$dst"
-elif [[ "$dst_arg" =~ ^# ]]; then
-  rsync -avz -e "ssh -i $dst_pem" "$src" "${dst_user_ip}:${dst_path}"
-else
-  rsync -avz "$src" "$dst"
-fi
+# Execute the rsync command
+echo "executing: rsync -avz $src_args $dst_args $additional_args"
+rsync -avz "$src_args" "$dst_args" $additional_args
