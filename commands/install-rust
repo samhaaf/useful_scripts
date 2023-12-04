@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Check if curl is installed
+if ! command -v curl &> /dev/null; then
+    echo "curl is not installed. Please install curl first."
+    exit 1
+fi
+
+# Download and run the rustup installation script
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Add Cargo to PATH
+source $HOME/.cargo/env
+
+# Check Cargo installation
+if command -v cargo &> /dev/null; then
+    echo "Cargo installed successfully."
+else
+    echo "Cargo installation failed."
+    exit 1
+fi

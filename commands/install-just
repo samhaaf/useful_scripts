@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if command -v cargo &> /dev/null; then
+        echo "Installing Just using Cargo..."
+        cargo install just
+    else
+        echo "Cargo not found. Installing Just from prebuilt binaries..."
+        curl -Lo just.tar.gz https://github.com/casey/just/releases/download/0.8.3/just-0.8.3-x86_64-unknown-linux-musl.tar.gz
+        tar -xzf just.tar.gz
+        mv just /usr/local/bin/
+        rm just.tar.gz
+    fi
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    if command -v brew &> /dev/null; then
+        echo "Installing Just using Homebrew..."
+        brew install just
+    else
+        echo "Homebrew not found. Installing Just from prebuilt binaries..."
+        curl -Lo just.tar.gz https://github.com/casey/just/releases/download/0.8.3/just-0.8.3-x86_64-apple-darwin.tar.gz
+        tar -xzf just.tar.gz
+        mv just /usr/local/bin/
+        rm just.tar.gz
+    fi
+else
+    echo "Unsupported OS type: $OSTYPE"
+    exit 1
+fi
+
+echo "Just installed successfully."

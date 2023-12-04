@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Install Xonsh using pip
+pip install xonsh
+
+echo "Xonsh installed successfully."

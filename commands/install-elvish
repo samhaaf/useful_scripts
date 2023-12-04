@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Default version of Elvish
+ELVISH_VERSION="v0.17.0"
+
+# Check if a version argument is provided
+if [[ $1 == "--version" && -n $2 ]]; then
+    ELVISH_VERSION=$2
+fi
+
+# Download the binary from the GitHub release page
+curl -Lo elvish "https://github.com/elves/elvish/releases/download/$ELVISH_VERSION/elvish-$ELVISH_VERSION-linux-amd64"
+
+# Make the binary executable
+chmod +x elvish
+
+# Move the binary to a directory in your PATH
+sudo mv elvish /usr/local/bin/
+
+echo "Elvish installed successfully."
