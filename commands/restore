@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -x  # Enable trace mode for better debugging
 
 # Initialize debug flag as false
 DEBUG_MODE=false

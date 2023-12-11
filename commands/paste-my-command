@@ -9,7 +9,7 @@ if [[ "$1" == "-y" || "$2" == "-y" ]]; then
     fi
 fi
 
-COMMAND_NAME="$1"
+COMMAND_NAME="$(check-alias $1)"
 target_file="$USEFUL_SCRIPTS_DIR/commands/$COMMAND_NAME"
 
 # Check if the target file exists
