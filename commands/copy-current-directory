@@ -1,0 +1,56 @@
+#!/bin/bash
+
+shopt -s extglob
+
+# Function to copy output to clipboard
+copy_to_clipboard() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        pbcopy
+    else
+        # Linux and others
+        xclip -selection clipboard
+    fi
+}
+
+# Function to recursively list files, checking against ignore patterns
+list_files() {
+    local current_dir="$1"
+
+    for entry in "$current_dir"/*; do
+        local base_entry=$(basename "$entry")
+
+        for pattern in "${ignore_patterns[@]}"; do
+            # echo "$pattern $entry $base_entry $base_entry_2";
+            if [[ $base_entry == $pattern ]] || [[ $base_entry =~ $pattern ]] ; then
+                # echo "    continuing";
+                continue 2
+            fi
+        done
+
+        # Construct relative path
+        local relative_path="$current_dir/$base_entry"
+
+        # If it's a directory, recurse into it
+        if [ -d "$entry" ]; then
+            list_files "$relative_path"
+        else
+            # It's a file, so print it
+            printf "\n\`\`\`%s\n" "$relative_path";
+            cat $entry;
+            printf "\n\`\`\`\n"
+        fi
+    done
+}
+
+# Set initial directory variables
+initial_dir="./"
+if [ -n "$1" ]; then
+    initial_dir="$1"
+fi
+
+# Array of patterns to ignore
+ignore_patterns=('\.git' '__pycache__' '.*\.bin$')
+
+# Start the recursive file listing
+list_files "$initial_dir" | copy_to_clipboard

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Check if the file exists in the specified directory
+if [[ -f "$USEFUL_SCRIPTS_DIR/aliases/$1" ]]; then
+    # Output the contents of the file
+    cat "$USEFUL_SCRIPTS_DIR/aliases/$1"
+else
+    # Echo the input as the file does not exist in the directory
+    echo "$1"
+fi
+
