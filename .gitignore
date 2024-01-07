@@ -3,3 +3,4 @@ var
 commands/poop
 .aider*
 .DS_Store
+**/poetry.lock

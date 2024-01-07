@@ -1,0 +1,3 @@
+[submodule "resources/kit"]
+	path = resources/kit
+	url = git@github.com:samhaaf/kit.git

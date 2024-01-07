@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Change to the directory
+cd "$USEFUL_SCRIPTS_DIR/resources/code_chat"
+
+# Check if poetry.lock file exists
+if [ ! -f "poetry.lock" ]; then
+    echo "poetry.lock not found. Running 'poetry install'..."
+    poetry install
+fi
+
+# Call the Python script with all passed arguments
+python "code_chat.py" "$@"

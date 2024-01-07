@@ -21,27 +21,31 @@ list_files() {
         local base_entry=$(basename "$entry")
 
         for pattern in "${ignore_patterns[@]}"; do
-            # echo "$pattern $entry $base_entry $base_entry_2";
             if [[ $base_entry == $pattern ]] || [[ $base_entry =~ $pattern ]] ; then
-                # echo "    continuing";
                 continue 2
             fi
         done
 
-        # Construct relative path
         local relative_path="$current_dir/$base_entry"
 
-        # If it's a directory, recurse into it
         if [ -d "$entry" ]; then
             list_files "$relative_path"
         else
-            # It's a file, so print it
             printf "\n\`\`\`%s\n" "$relative_path";
             cat $entry;
             printf "\n\`\`\`\n"
         fi
     done
 }
+
+# Parsing command line arguments
+copy_output=true
+while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+  --print )
+    copy_output=false
+    ;;
+esac; shift; done
+if [[ "$1" == '--' ]]; then shift; fi
 
 # Set initial directory variables
 initial_dir="./"
@@ -53,4 +57,8 @@ fi
 ignore_patterns=('\.git' '__pycache__' '.*\.bin$')
 
 # Start the recursive file listing
-list_files "$initial_dir" | copy_to_clipboard
+if $copy_output; then
+    list_files "$initial_dir" | copy_to_clipboard
+else
+    list_files "$initial_dir"
+fi
