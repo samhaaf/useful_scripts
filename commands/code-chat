@@ -1,13 +1,31 @@
 #!/bin/bash
 
+ENTRY_PATH=$(pwd)
+
+UPDATE="false"
+for arg in "$@"
+do
+  case $arg in
+    --update)
+      UPDATE="true"
+      shift
+      ;;
+  esac
+done
+
 # Change to the directory
-cd "$USEFUL_SCRIPTS_DIR/resources/code_chat"
+CODE_CHAT_DIR="$USEFUL_SCRIPTS_DIR/resources/code_chat"
+
+cd "$CODE_CHAT_DIR";
+
 
 # Check if poetry.lock file exists
-if [ ! -f "poetry.lock" ]; then
-    echo "poetry.lock not found. Running 'poetry install'..."
-    poetry install
+if [ ! -f "poetry.lock" ] || [ "$UPDATE" = "true" ]; then
+    echo "Running 'poetry install..."
+    poetry install;
 fi
 
+clear
+
 # Call the Python script with all passed arguments
-python "code_chat.py" "$@"
+python code_chat.py --CHDIR $ENTRY_PATH "$@"

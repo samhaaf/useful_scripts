@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-kit = {path = "../kit"}
+kit = {path = "../kit", develop=true}
 
 
 [build-system]

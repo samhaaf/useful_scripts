@@ -1,32 +1,67 @@
 #!/bin/bash
 
-# Check if an argument is provided
-if [ "$#" -ne 1 ]; then
-  echo "Usage: mc <command_name>"
+# Function to display usage information
+usage() {
+  echo "Usage: $0 [--local] <command_name>"
   exit 1
+}
+
+# Check if an argument is provided
+if [ "$#" -lt 1 ]; then
+  usage
 fi
 
-command_name="$(check-alias $1)"
-script_dir=$(dirname "$0")
-command_path="$script_dir/$command_name"
+# Parse command-line arguments
+LOCAL=false
+for arg in "$@"; do
+    case $arg in
+        --local)
+        LOCAL=true
+        ;;
+        *)
+        # Assuming the last argument is the command name
+        COMMAND_NAME="$arg"
+        ;;
+    esac
+done
 
-# Check if the command exists in /usr/local/bin
-if [ -f "$command_path" ]; then
-  # If it exists, open it in vim
-  vim "$command_path"
+# Function to execute a command with optional sudo
+execute() {
+  if [ "$LOCAL" = true ]; then
+    sudo "$@"
+  else
+    "$@"
+  fi
+}
+
+# Determine the command path
+if [ "$LOCAL" = true ]; then
+    command_path="/usr/local/bin/$COMMAND_NAME"
 else
-  # If it does not exist, create a new file with the basic template
-  echo "#!/bin/bash" > "$command_path"
+    script_dir=$(dirname "$0")
+    command_path="$script_dir/$COMMAND_NAME"
+    COMMAND_NAME="$(check-alias $COMMAND_NAME)"
+fi
+
+# Check if the command exists in the specified path
+if [ -f "$command_path" ]; then
+  # Open it in vim
+  execute vim "$command_path"
+else
+  # Create a new file with the basic template
+  execute touch "$command_path"
+  execute chmod +x "$command_path"
+  execute bash -c "echo '#!/bin/bash' > '$command_path'"
 
   # Open the file in vim
-  vim "$command_path"
+  execute vim "$command_path"
 
   # Check if the file has more than 1 line
-  if [ "$(wc -l < "$command_path")" -gt 1 ]; then
+  if [ "$(execute wc -l < "$command_path")" -gt 1 ]; then
     # If it does, make the file executable
-    chmod +x "$command_path"
+    execute chmod +x "$command_path"
   else
     # If it does not, delete the file
-    rm "$command_path"
+    execute rm "$command_path"
   fi
 fi

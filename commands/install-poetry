@@ -4,6 +4,10 @@ uninstall=false
 install=true
 quiet=false
 
+if ! command -v python3.11 &> /dev/null; then
+    install-python 3.11;
+fi
+
 # Parse command-line arguments
 for arg in "$@"; do
     case $arg in
@@ -24,17 +28,30 @@ done
 # Uninstall Poetry if --uninstall or --reinstall flag is provided
 if [ "$uninstall" = true ]; then
     echo "Uninstalling Poetry..."
-    curl -sSL https://install.python-poetry.org | python3 - --uninstall
+    curl -sSL https://install.python-poetry.org | python3.11 - --uninstall
     rm -rf ~/Library/Application\ Support/pypoetry 2>/dev/null
+
+    # Check for the Poetry executable and delete it if it exists
+    poetry_executable=$(command -v poetry)
+    if [ -n "$poetry_executable" ]; then
+        echo "Removing Poetry executable..."
+        rm -f "$poetry_executable"
+    fi
+
+    # Remove Poetry configuration and cache directories
+    rm -rf ~/.poetry
+    rm -rf ~/Library/Caches/pypoetry
 fi
 
-# Check if Poetry is installed using 'which'
-if ! which poetry &> /dev/null; then
-    echo "Installing Poetry..."
-    curl -sSL https://install.python-poetry.org | python3 -
-    add-to-path "$HOME/.local/bin"
-else
-    if [ "$quiet" = false ]; then
-        echo "Poetry is already installed. To reinstall, call 'install-poetry --reinstall'"
+if [ "$install" = true ]; then
+    # Check if Poetry is installed using 'which'
+    if ! command -v poetry &> /dev/null; then
+        echo "Installing Poetry..."
+        curl -sSL https://install.python-poetry.org | python3.11 -
+        add-to-path "$HOME/.local/bin"
+    else
+        if [ "$quiet" = false ]; then
+            echo "Poetry is already installed. To reinstall, call 'install-poetry --reinstall'"
+        fi
     fi
 fi

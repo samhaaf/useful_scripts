@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd /tmp/
+wget https://ollama.ai/download/Ollama-darwin.zip
+unzip Ollama-darwin.zip
+Ollama.app/Contents/MacOS/Ollama

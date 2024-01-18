@@ -15,9 +15,17 @@ copy_to_clipboard() {
 
 # Function to recursively list files, checking against ignore patterns
 list_files() {
-    local current_dir="$1"
+    local current_path="$1"
 
-    for entry in "$current_dir"/*; do
+    if [ -f "$current_path" ]; then
+        # If it's a file, print its contents
+        printf "\n\`\`\`%s\n" "$current_path";
+        cat "$current_path";
+        printf "\n\`\`\`\n"
+        return
+    fi
+
+    for entry in "$current_path"/*; do
         local base_entry=$(basename "$entry")
 
         for pattern in "${ignore_patterns[@]}"; do
@@ -26,13 +34,13 @@ list_files() {
             fi
         done
 
-        local relative_path="$current_dir/$base_entry"
+        local relative_path="$current_path/$base_entry"
 
         if [ -d "$entry" ]; then
             list_files "$relative_path"
         else
             printf "\n\`\`\`%s\n" "$relative_path";
-            cat $entry;
+            cat "$entry";
             printf "\n\`\`\`\n"
         fi
     done
@@ -48,10 +56,11 @@ esac; shift; done
 if [[ "$1" == '--' ]]; then shift; fi
 
 # Set initial directory variables
-initial_dir="./"
+initial_dir="."
 if [ -n "$1" ]; then
     initial_dir="$1"
 fi
+initial_dir="${initial_dir%/}"  # Remove trailing slash if exists
 
 # Array of patterns to ignore
 ignore_patterns=('\.git' '__pycache__' '.*\.bin$')
